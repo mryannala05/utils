@@ -12,8 +12,11 @@
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
+            outline: none;
         }
-
+        body:focus {
+            outline: none;
+        }
         .container {
             max-width: 800px;
             margin: 50px auto;
@@ -194,13 +197,18 @@
             transform: rotate(20deg);
         }
 
+        .suggestions div.active {
+            background-color: #ddd;
+        }
+
+
 
     </style>
 </head>
 <body>
     <div class="container">
         <header class="header">
-            <h1 class="main-heading">Link Bliss .. Your Bookmark Guardian</h1>
+            <h1 class="main-heading">Link Bliss .. Bookmark Guardian</h1>
         </header>
         <br>
 
@@ -353,6 +361,18 @@
                 }
             }
 
+            let activeSuggestionIndex = -1;
+
+            function debounce(func, delay) {
+                let debounceTimer;
+                return function() {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => func.apply(context, args), delay);
+                };
+            }
+
             function updateSuggestions() {
                 const searchText = searchInput.value.trim().toLowerCase();
                 suggestionsDiv.innerHTML = '';
@@ -368,7 +388,7 @@
                             suggestionDiv.textContent = suggestion;
                             suggestionDiv.onclick = () => {
                                 searchInput.value = suggestion;
-                                suggestionsDiv.style.display = 'none';
+                                suggestionsDiv.style.display = 'none'; // Hide suggestions when an item is clicked
                                 renderUrls(searchInput.value.trim());
                             };
                             suggestionsDiv.appendChild(suggestionDiv);
@@ -381,6 +401,67 @@
                     suggestionsDiv.style.display = 'none';
                 }
             }
+
+            const hideSuggestions = debounce(() => {
+                suggestionsDiv.style.display = 'none';
+            }, 3000);
+            searchInput.addEventListener('input', () => {
+                updateSuggestions();
+                hideSuggestions();
+            });
+
+            function handleKeyDown(event) {
+                const suggestionItems = suggestionsDiv.children;
+                if (suggestionsDiv.style.display === 'block') {
+                    switch (event.key) {
+                        case 'ArrowDown':
+                            event.preventDefault();
+                            activeSuggestionIndex = (activeSuggestionIndex + 1) % suggestionItems.length;
+                            highlightSuggestion(suggestionItems, activeSuggestionIndex);
+                            break;
+                        case 'ArrowUp':
+                            event.preventDefault();
+                            activeSuggestionIndex = (activeSuggestionIndex - 1 + suggestionItems.length) % suggestionItems.length;
+                            highlightSuggestion(suggestionItems, activeSuggestionIndex);
+                            break;
+                        case 'Enter':
+                            if (activeSuggestionIndex >= 0) {
+                                event.preventDefault();
+                                suggestionItems[activeSuggestionIndex].click();
+                            }
+                            break;
+                        case 'Escape':
+                            suggestionsDiv.style.display = 'none';
+                            break;
+                    }
+                }
+            }
+
+            function highlightSuggestion(items, index) {
+                for (let i = 0; i < items.length; i++) {
+                    items[i].classList.remove('active');
+                }
+                if (items[index]) {
+                    items[index].classList.add('active');
+                }
+            }
+
+            searchInput.addEventListener('keydown', handleKeyDown);
+
+            function debounce(func, delay) {
+                let debounceTimer;
+                return function() {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => func.apply(context, args), delay);
+                };
+            }
+
+            const debouncedUpdateSuggestions = debounce(updateSuggestions, 300);
+            searchInput.addEventListener('input', debouncedUpdateSuggestions);
+
+
 
             function sortTable(column) {
                 if (sortColumn === column) {
