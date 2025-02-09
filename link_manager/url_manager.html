@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Links Manager</title>
+    <title>Links Nirvana</title>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -38,7 +38,7 @@
         }
 
         input[type="text"] {
-            width: 100%;
+            width: 97%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -132,7 +132,7 @@
         }
 
         .search-container input {
-            width: calc(100% - 120px);
+            width: calc(98% - 120px);
             margin-right: 10px;
         }
 
@@ -154,14 +154,61 @@
         .suggestions div:hover {
             background-color: #f1f1f1;
         }
+        /* Header styling */
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #00b7ff, #ffac58);
+            color: #fff;
+            padding: 5px;
+            border-radius: 2px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+
+        }
+
+        /* Main heading styling */
+        .main-heading {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+
+
+        #clearSearch {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        #clearSearch:hover {
+            background-color: #ff6f61;
+            transform: scale(1.05);
+        }
+
+        #clearSearch i {
+            transition: transform 0.3s;
+        }
+
+        #clearSearch:hover i {
+            transform: rotate(20deg);
+        }
+
+
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Links Manager</h1>
+        <header class="header">
+            <h1 class="main-heading">Link Bliss .. Your Bookmark Guardian</h1>
+        </header>
+        <br>
+
         <div class="search-container">
             <input type="text" id="search" placeholder="Search URLs or labels...">
-            <button id="clearSearch"><i class="fas fa-times"></i> Clear</button>
+            <button id="clearSearch" title="Clear search results">
+                <i class="fas fa-broom"></i> Clear
+            </button>
             <div class="suggestions" id="suggestions"></div>
         </div>
         <div class="form-group">
@@ -169,8 +216,8 @@
             <input type="text" id="url" placeholder="Enter URL">
         </div>
         <div class="form-group">
-            <label for="label">Label:</label>
-            <input type="text" id="label" placeholder="Enter Label">
+            <label for="label" >Label:</label>
+            <input type="text" id="label" placeholder="Enter Label" >
         </div>
         <button id="addUrl"><i class="fas fa-plus"></i> Add URL</button>
         <table id="urlTable">
