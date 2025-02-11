@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Links Nirvana</title>
+    <title>Links / URL - Manager </title>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -162,6 +162,7 @@
             overflow-y: auto;
             display: none;
             background-color: #fff;
+            color: black;
         }
 
         .suggestions div {
@@ -216,6 +217,62 @@
             background-color: #ddd;
         }
 
+        /* Dark Mode Styles */
+        .dark-mode {
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        /* Dark Mode Search Suggestions */
+        .dark-mode .suggestions {
+            background-color: #333;
+            color: white;
+            border: 1px solid #555;
+        }
+
+        .dark-mode .container {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+
+        .dark-mode input[type="text"],
+        .dark-mode table {
+            background-color: #2a2a2a;
+            color: #ffffff;
+            border-color: #444;
+        }
+
+        .dark-mode th {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .dark-mode tr:nth-child(odd) {
+            background-color: #252525;
+        }
+
+        .dark-mode tr:nth-child(even) {
+            background-color: #2e2e2e;
+        }
+
+        .dark-mode button {
+            background-color: #444;
+            color: #fff;
+        }
+
+        .dark-mode button:hover {
+            background-color: #666;
+        }
+
+        .dark-mode #darkModeToggle {
+            background-color: #444;
+            color: #fff;
+        }
+
+        .dark-mode #darkModeToggle:hover {
+            background-color: #666;
+        }
+
 
 
     </style>
@@ -223,7 +280,7 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1 class="main-heading">Link Bliss .. Bookmark Guardian</h1>
+            <h1 class="main-heading">Links Bliss .. Bookmark Guardian</h1>
         </header>
         <br>
 
@@ -243,6 +300,9 @@
             <input type="text" id="label" placeholder="Enter Label" >
         </div>
         <button id="addUrl"><i class="fas fa-plus"></i> Add URL</button>
+        <button id="darkModeToggle" title="Toggle Dark Mode">
+            <i class="fas fa-moon"></i> Dark Mode
+        </button>
         <table id="urlTable">
             <thead>
                 <tr>
@@ -255,6 +315,30 @@
         </table>
     </div>
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const body = document.body;
+
+            // Check if dark mode is enabled in localStorage
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                body.classList.add('dark-mode');
+                darkModeToggle.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+            }
+
+            // Toggle Dark Mode
+            darkModeToggle.addEventListener('click', function () {
+                body.classList.toggle('dark-mode');
+
+                // Save preference in localStorage
+                if (body.classList.contains('dark-mode')) {
+                    localStorage.setItem('darkMode', 'enabled');
+                    darkModeToggle.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+                } else {
+                    localStorage.setItem('darkMode', 'disabled');
+                    darkModeToggle.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+                }
+            });
+        });
 
         document.querySelectorAll('th').forEach(th => {
             const resizeHandle = document.createElement('div');
