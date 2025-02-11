@@ -18,7 +18,7 @@
             outline: none;
         }
         .container {
-            max-width: 800px;
+            max-width: 80%;
             margin: 50px auto;
             padding: 20px;
             background-color: #fff;
@@ -95,6 +95,21 @@
             cursor: pointer;
             position: relative;
 			white-space: nowrap;
+            user-select: none;
+            position: relative
+        }
+
+        th .resize-handle {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 5px;
+            height: 100%;
+            cursor: col-resize;
+            background-color: transparent;
+        }
+        th .resize-handle:hover {
+            background-color: #aaa;
         }
 
         th i {
@@ -240,6 +255,33 @@
         </table>
     </div>
     <script>
+
+        document.querySelectorAll('th').forEach(th => {
+            const resizeHandle = document.createElement('div');
+            resizeHandle.className = 'resize-handle';
+            th.appendChild(resizeHandle);
+
+            let startX, startWidth;
+
+            resizeHandle.addEventListener('mousedown', function (e) {
+                startX = e.pageX;
+                startWidth = th.offsetWidth;
+
+                document.addEventListener('mousemove', resizeColumn);
+                document.addEventListener('mouseup', stopResize);
+            });
+
+            function resizeColumn(e) {
+                const newWidth = startWidth + (e.pageX - startX);
+                th.style.width = newWidth + 'px';
+            }
+
+            function stopResize() {
+                document.removeEventListener('mousemove', resizeColumn);
+                document.removeEventListener('mouseup', stopResize);
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function () {
             const urlInput = document.getElementById('url');
             const labelInput = document.getElementById('label');
@@ -313,6 +355,12 @@
                         deleteButton.innerHTML = '<i class="fas fa-trash"></i> Delete';
                         deleteButton.onclick = () => deleteUrl(urlObj.id);
 
+                        const copyButton = document.createElement('button');
+                        copyButton.className = 'copy';
+                        copyButton.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                        copyButton.onclick = () => copyToClipboard(urlObj.id);
+
+                        actionButtons.appendChild(copyButton);
                         actionButtons.appendChild(editButton);
                         actionButtons.appendChild(deleteButton);
                         actionsCell.appendChild(actionButtons);
@@ -348,6 +396,21 @@
                         renderUrls(searchInput.value.trim());
                     }
                 }
+            }
+
+            function copyToClipboard(id) {
+                var index = urls.findIndex(urlObj => urlObj.id === id);
+                if (index !== -1) {
+                    navigator.clipboard.writeText( urls[index].url)
+                        .then(() => {
+
+                        })
+                        .catch(err => {
+                            alert("Failed to copy URL: " + err);
+                        });
+                }
+
+
             }
 
             function deleteUrl(id) {
