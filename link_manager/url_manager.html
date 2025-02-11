@@ -303,6 +303,9 @@
         <button id="darkModeToggle" title="Toggle Dark Mode">
             <i class="fas fa-moon"></i> Dark Mode
         </button>
+        <button id="exportJson"><i class="fas fa-download"></i> Export Bookmarks</button>
+        <button id="importJson"><i class="fas fa-file-import"></i> Import Bookmarks</button>
+
         <table id="urlTable">
             <thead>
                 <tr>
@@ -315,6 +318,7 @@
         </table>
     </div>
     <script>
+
         document.addEventListener('DOMContentLoaded', function () {
             const darkModeToggle = document.getElementById('darkModeToggle');
             const body = document.body;
@@ -650,7 +654,79 @@
 
             addUrlButton.addEventListener('click', addUrl);
             renderUrls();
+            document.getElementById('exportJson').addEventListener('click', function () {
+                let urls = JSON.parse(localStorage.getItem('urls')) || [];
+                if (urls.length === 0) {
+                    alert("No bookmarks to export!");
+                    return;
+                }
+
+                // Convert bookmarks to JSON string
+                const jsonData = JSON.stringify(urls, null, 2);
+
+                // Create a Blob with the JSON data
+                const blob = new Blob([jsonData], { type: "application/json" });
+
+                // Create an invisible anchor element to trigger the download
+                const a = document.createElement("a");
+
+                // Set the download attribute to specify the default filename
+                a.href = URL.createObjectURL(blob);
+                a.download = "bookmarks.json";  // Default file name
+
+                // Trigger the file save dialog by simulating a click on the anchor tag
+                document.body.appendChild(a);
+                a.click();
+
+                // Clean up by revoking the object URL and removing the anchor element from the DOM
+                setTimeout(() => {
+                    URL.revokeObjectURL(a.href);
+                    document.body.removeChild(a);
+                }, 100);
+            });
+
+            document.getElementById('importJson').addEventListener('click', function () {
+                // Create an invisible file input element to open the file dialog
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = '.json';
+
+                fileInput.addEventListener('change', function (event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            try {
+                                // Parse the JSON file
+                                const importedUrls = JSON.parse(e.target.result);
+
+                                // Validate if it's an array of URLs
+                                if (Array.isArray(importedUrls)) {
+                                    // Store the imported URLs in localStorage
+                                    localStorage.setItem('urls', JSON.stringify(importedUrls));
+                                    //alert('Bookmarks imported successfully!');
+                                    // Optionally, you can call a function to update the UI with the imported bookmarks
+                                    renderUrls(); // Update the UI
+                                    location.reload();
+                                } else {
+                                    alert('Invalid JSON format.');
+                                }
+                            } catch (error) {
+                                alert('Error parsing JSON file.');
+                            }
+                        };
+                        reader.readAsText(file);
+                    }
+                });
+
+                // Simulate a click on the file input to open the file dialog
+                fileInput.click();
+            });
         });
+
+
+
+
     </script>
 </body>
 </html>
