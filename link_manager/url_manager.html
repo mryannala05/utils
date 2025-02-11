@@ -13,6 +13,7 @@
             margin: 0;
             padding: 0;
             outline: none;
+            transition: background-color 1.0s, color 1.0s;
         }
         body:focus {
             outline: none;
@@ -273,6 +274,22 @@
             background-color: #666;
         }
 
+        /* Dark mode link styles */
+        .dark-mode a {
+            color: #bb86fc; /* Softer link color in dark mode */
+        }
+
+        .dark-mode a:hover {
+            color: #ffffff; /* Brighter color on hover */
+        }
+
+        .dark-mode td, dark-mode th {
+            border-color: #333; /* Darker borders */
+        }
+
+        a, button {
+            transition: color 0.3s, background-color 0.3s;
+        }
 
 
     </style>
