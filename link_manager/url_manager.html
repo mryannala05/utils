@@ -59,10 +59,16 @@
             border-radius: 4px;
             font-size: 16px;
             cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s
         }
 
         button:hover {
             background-color: #218838;
+            transform: scale(1.05)
+        }
+        button:focus {
+            outline: 2px solid #0056b3; /* Ensure focus visibility for accessibility */
+            outline-offset: 2px;
         }
 
         /* Table Styles */
@@ -277,6 +283,7 @@
         /* Dark mode link styles */
         .dark-mode a {
             color: #bb86fc; /* Softer link color in dark mode */
+            text-decoration: underline;
         }
 
         .dark-mode a:hover {
@@ -289,6 +296,50 @@
 
         a, button {
             transition: color 0.3s, background-color 0.3s;
+        }
+
+        .url-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        a.url-link {
+            color: #007bff; /* Blue color */
+            text-decoration: none;
+        }
+
+        a.url-link:hover {
+            text-decoration: underline;
+        }
+        button {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        button:focus {
+            outline: 2px solid #0056b3; /* Ensure focus visibility for accessibility */
+            outline-offset: 2px;
+        }
+        .default-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            vertical-align: middle;
         }
 
 
@@ -441,8 +492,31 @@
                         const urlCell = document.createElement('td');
                         const urlLink = document.createElement('a');
                         urlLink.href = urlObj.url;
-                        urlLink.textContent = urlObj.url;
                         urlLink.target = '_blank';
+
+                        try {
+                            const domain = new URL(urlObj.url).hostname;
+
+                            // New icon element with error handling
+                            const urlIcon = document.createElement('img');
+                            urlIcon.src = `https://www.google.com/s2/favicons?domain=${domain}`;
+                            urlIcon.alt = 'Icon';
+                            urlIcon.style.width = '16px';
+                            urlIcon.style.height = '16px';
+                            urlIcon.style.marginRight = '8px';
+
+                            // Hide the icon if it fails to load
+                            urlIcon.onerror = () => {
+                                urlIcon.style.display = 'none';
+
+                            };
+
+                            urlLink.appendChild(urlIcon); // Append the icon before the text
+                        } catch (error) {
+                            console.error('Invalid URL:', urlObj.url);
+                        }
+                        urlLink.appendChild(document.createTextNode(urlObj.url));
+
                         urlCell.appendChild(urlLink);
                         row.appendChild(urlCell);
 
