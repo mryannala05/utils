@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Links / URL - Manager </title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Basic Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            outline: none;
+            transition: background-color 1.0s, color 1.0s;
+        }
+
+        body:focus {
+            outline: none;
+        }
+
+        .container {
+            max-width: 80%;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="text"] {
+            width: 97%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s
+        }
+
+        button:hover {
+            background-color: #218838;
+            transform: scale(1.05)
+        }
+
+        button:focus {
+            outline: 2px solid #0056b3; /* Ensure focus visibility for accessibility */
+            outline-offset: 2px;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            table-layout: fixed;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            word-break: break-all;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #f9f9f9; /* White */
+        }
+
+        tr:nth-child(even) {
+            background-color: #f1f1f1; /* Light Grey */
+        }
+
+        /* Optional: Hover effect for rows */
+        tr:hover {
+            background-color: #ddd; /* Darker grey on hover */
+        }
+
+        th {
+            background-color: #f4f4f4;
+            color: #333;
+            cursor: pointer;
+            position: relative;
+            white-space: nowrap;
+            user-select: none;
+            position: relative
+        }
+
+        th .resize-handle {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 5px;
+            height: 100%;
+            cursor: col-resize;
+            background-color: transparent;
+        }
+
+        th .resize-handle:hover {
+            background-color: #aaa;
+        }
+
+        th i {
+            margin-left: 5px;
+            color: #888;
+            margin-left: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+        }
+
+        .action-buttons button {
+            margin-left: 5px;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+
+        .action-buttons button.edit {
+            background-color: #ffc107;
+        }
+
+        .action-buttons button.delete {
+            background-color: #dc3545;
+        }
+
+        .action-buttons button.edit:hover {
+            background-color: #e0a800;
+        }
+
+        .action-buttons button.delete:hover {
+            background-color: #c82333;
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        .search-container input {
+            width: calc(98% - 120px);
+            margin-right: 10px;
+        }
+
+        .suggestions {
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+            background-color: #fff;
+            color: black;
+        }
+
+        .suggestions div {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .suggestions div:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Header styling */
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #00b7ff, #ffac58);
+            color: #fff;
+            padding: 5px;
+            border-radius: 2px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+
+        }
+
+        /* Main heading styling */
+        .main-heading {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+
+        #clearSearch {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        #clearSearch:hover {
+            background-color: #ff6f61;
+            transform: scale(1.05);
+        }
+
+        #clearSearch i {
+            transition: transform 0.3s;
+        }
+
+        #clearSearch:hover i {
+            transform: rotate(20deg);
+        }
+
+        .suggestions div.active {
+            background-color: #ddd;
+        }
+
+        /* Dark Mode Styles */
+        .dark-mode {
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        /* Dark Mode Search Suggestions */
+        .dark-mode .suggestions {
+            background-color: #333;
+            color: white;
+            border: 1px solid #555;
+        }
+
+        .dark-mode .container {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+
+        .dark-mode input[type="text"],
+        .dark-mode table {
+            background-color: #2a2a2a;
+            color: #ffffff;
+            border-color: #444;
+        }
+
+        .dark-mode th {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .dark-mode tr:nth-child(odd) {
+            background-color: #252525;
+        }
+
+        .dark-mode tr:nth-child(even) {
+            background-color: #2e2e2e;
+        }
+
+        .dark-mode button {
+            background-color: #444;
+            color: #fff;
+        }
+
+        .dark-mode button:hover {
+            background-color: #666;
+        }
+
+        .dark-mode #darkModeToggle {
+            background-color: #444;
+            color: #fff;
+        }
+
+        .dark-mode #darkModeToggle:hover {
+            background-color: #666;
+        }
+
+        /* Dark mode link styles */
+        .dark-mode a {
+            color: #bb86fc; /* Softer link color in dark mode */
+            text-decoration: underline;
+        }
+
+        .dark-mode a:hover {
+            color: #ffffff; /* Brighter color on hover */
+        }
+
+        .dark-mode td, dark-mode th {
+            border-color: #333; /* Darker borders */
+        }
+
+        a, button {
+            transition: color 0.3s, background-color 0.3s;
+        }
+
+        .url-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        a.url-link {
+            color: #007bff; /* Blue color */
+            text-decoration: none;
+        }
+
+        a.url-link:hover {
+            text-decoration: underline;
+        }
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        button:focus {
+            outline: 2px solid #0056b3; /* Ensure focus visibility for accessibility */
+            outline-offset: 2px;
+        }
+
+        .default-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .error {
+            border: 2px solid #ff4444 !important;
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-5px);
+            }
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="notification" id="notification"></div>
+
+<div class="container">
+    <header class="header">
+        <h1 class="main-heading">Links Bliss .. Bookmark Guardian</h1>
+    </header>
+    <br>
+
+    <div class="search-container">
+        <input type="text" id="search" placeholder="Search URLs or labels...">
+        <button id="clearSearch" title="Clear search results">
+            <i class="fas fa-broom"></i> Clear
+        </button>
+        <div class="suggestions" id="suggestions"></div>
+    </div>
+    <div class="form-group">
+        <label for="url">URL:</label>
+        <input type="text" id="url" placeholder="Enter URL">
+    </div>
+    <div class="form-group">
+        <label for="label">Label:</label>
+        <input type="text" id="label" placeholder="Enter Label">
+    </div>
+    <button id="addUrl"><i class="fas fa-plus"></i> Add URL</button>
+    <button id="darkModeToggle" title="Toggle Dark Mode">
+        <i class="fas fa-moon"></i> Dark Mode
+    </button>
+    <button id="exportJson"><i class="fas fa-download"></i> Export Bookmarks</button>
+    <button id="importJson"><i class="fas fa-file-import"></i> Append Bookmarks</button>
+    <button id="importJsonOverwrite"><i class="fas fa-file-import"></i> Import And Overwrite Bookmarks</button>
+
+    <table id="urlTable">
+        <thead>
+        <tr>
+            <th data-column="label" data-order="asc">Label <i class="fas fa-sort"></i></th>
+            <th data-column="url" data-order="asc">URL <i class="fas fa-sort"></i></th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="urlList"></tbody>
+    </table>
+</div>
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const body = document.body;
+
+            // Check if dark mode is enabled in localStorage
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                body.classList.add('dark-mode');
+                darkModeToggle.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+            }
+
+            // Toggle Dark Mode
+            darkModeToggle.addEventListener('click', function () {
+                body.classList.toggle('dark-mode');
+
+                // Save preference in localStorage
+                if (body.classList.contains('dark-mode')) {
+                    localStorage.setItem('darkMode', 'enabled');
+                    darkModeToggle.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+                } else {
+                    localStorage.setItem('darkMode', 'disabled');
+                    darkModeToggle.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+                }
+            });
+
+
+        }
+    );
+
+    document.querySelectorAll('th').forEach(th => {
+        const resizeHandle = document.createElement('div');
+        resizeHandle.className = 'resize-handle';
+        th.appendChild(resizeHandle);
+
+        let startX, startWidth;
+
+        resizeHandle.addEventListener('mousedown', function (e) {
+            startX = e.pageX;
+            startWidth = th.offsetWidth;
+
+            document.addEventListener('mousemove', resizeColumn);
+            document.addEventListener('mouseup', stopResize);
+        });
+
+        function resizeColumn(e) {
+            const newWidth = startWidth + (e.pageX - startX);
+            th.style.width = newWidth + 'px';
+        }
+
+        function stopResize() {
+            document.removeEventListener('mousemove', resizeColumn);
+            document.removeEventListener('mouseup', stopResize);
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const urlInput = document.getElementById('url');
+        const labelInput = document.getElementById('label');
+        const addUrlButton = document.getElementById('addUrl');
+        const urlList = document.getElementById('urlList');
+        const searchInput = document.getElementById('search');
+        const suggestionsDiv = document.getElementById('suggestions');
+        const clearSearchButton = document.getElementById('clearSearch');
+        const tableHeaders = document.querySelectorAll('th[data-column]');
+
+        let urls = JSON.parse(localStorage.getItem('urls')) || [];
+        let sortColumn = 'label';
+        let sortOrder = 'asc';
+
+        // Generate a unique ID
+        function generateId() {
+            return '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function renderUrls(filter = '') {
+            urlList.innerHTML = '';
+            let filteredUrls = urls.filter(urlObj =>
+                urlObj.url.toLowerCase().includes(filter.toLowerCase()) ||
+                urlObj.label.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            // Sorting
+            filteredUrls.sort((a, b) => {
+                const valA = a[sortColumn].toLowerCase();
+                const valB = b[sortColumn].toLowerCase();
+                if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+                if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            if (filteredUrls.length === 0) {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = 3;
+                cell.textContent = 'No URLs found.';
+                cell.style.textAlign = 'center';
+                row.appendChild(cell);
+                urlList.appendChild(row);
+            } else {
+                filteredUrls.forEach((urlObj) => {
+                    const row = document.createElement('tr');
+
+                    const labelCell = document.createElement('td');
+                    labelCell.textContent = urlObj.label;
+                    row.appendChild(labelCell);
+
+                    const urlCell = document.createElement('td');
+                    const urlLink = document.createElement('a');
+                    urlLink.href = urlObj.url;
+                    urlLink.target = '_blank';
+
+                    try {
+                        const domain = new URL(urlObj.url).hostname;
+
+                        // New icon element with error handling
+                        const urlIcon = document.createElement('img');
+                        urlIcon.src = `https://www.google.com/s2/favicons?domain=${domain}`;
+                        urlIcon.alt = 'Icon';
+                        urlIcon.style.width = '16px';
+                        urlIcon.style.height = '16px';
+                        urlIcon.style.marginRight = '8px';
+
+                        // Hide the icon if it fails to load
+                        urlIcon.onerror = () => {
+                            urlIcon.style.display = 'none';
+
+                        };
+
+                        urlLink.appendChild(urlIcon); // Append the icon before the text
+                    } catch (error) {
+                        console.error('Invalid URL:', urlObj.url);
+                    }
+                    urlLink.appendChild(document.createTextNode(urlObj.url));
+
+                    urlCell.appendChild(urlLink);
+                    row.appendChild(urlCell);
+
+                    const actionsCell = document.createElement('td');
+                    const actionButtons = document.createElement('div');
+                    actionButtons.className = 'action-buttons';
+
+                    const editButton = document.createElement('button');
+                    editButton.className = 'edit';
+                    editButton.innerHTML = '<i class="fas fa-edit"></i> Edit';
+                    editButton.onclick = () => editUrl(urlObj.id);
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'delete';
+                    deleteButton.innerHTML = '<i class="fas fa-trash"></i> Delete';
+                    deleteButton.onclick = () => deleteUrl(urlObj.id);
+
+                    const copyButton = document.createElement('button');
+                    copyButton.className = 'copy';
+                    copyButton.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                    copyButton.onclick = () => copyToClipboard(urlObj.id);
+
+                    actionButtons.appendChild(copyButton);
+                    actionButtons.appendChild(editButton);
+                    actionButtons.appendChild(deleteButton);
+                    actionsCell.appendChild(actionButtons);
+                    row.appendChild(actionsCell);
+
+                    urlList.appendChild(row);
+                });
+            }
+        }
+
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.backgroundColor = isError ? '#ff4444' : '#4CAF50';
+            notification.style.display = 'block';
+            setTimeout(() => notification.style.display = 'none', 2000);
+        }
+
+        function isValidUrl(url) {
+            try {
+                new URL(url);
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
+        function normalizeUrl(url) {
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                return 'https://' + url;
+            }
+            return url;
+        }
+        function validateImportedUrls(data) {
+            return data.every(item =>
+                item.id && item.url && item.label &&
+                isValidUrl(item.url)
+            );
+        }
+
+        function addUrl() {
+            const url = normalizeUrl(urlInput.value.trim());
+            const label = labelInput.value.trim() || 'Unnamed Link';
+            if (!isValidUrl(url)) {
+                urlInput.classList.add('error', 'shake');
+                setTimeout(() => urlInput.classList.remove('shake'), 500);
+                showNotification('Please enter a valid URL', true);
+                return;
+            }
+            showNotification('URL Added', true);
+
+            if (url) {
+                const newUrlObj = {id: generateId(), url, label};
+                urls.push(newUrlObj);
+                localStorage.setItem('urls', JSON.stringify(urls));
+                urlInput.value = '';
+                labelInput.value = '';
+                renderUrls(searchInput.value.trim());
+            }
+        }
+
+        function editUrl(id) {
+            const index = urls.findIndex(urlObj => urlObj.id === id);
+            if (index !== -1) {
+                const newUrl = normalizeUrl(prompt('Enter the new URL:', urls[index].url) || '');
+                const newLabel = prompt('Enter the new label:', urls[index].label) || 'Unnamed Link';
+                if (!isValidUrl(newUrl)) {
+                    showNotification('Invalid URL entered', true);
+                    return;
+                }
+
+                if (newUrl !== null && newUrl.trim() !== '') {
+                    urls[index].url = newUrl.trim();
+                    urls[index].label = newLabel.trim();
+                    localStorage.setItem('urls', JSON.stringify(urls));
+                    renderUrls(searchInput.value.trim());
+                }
+            }
+        }
+
+        function copyToClipboard(id) {
+            var index = urls.findIndex(urlObj => urlObj.id === id);
+            if (index !== -1) {
+                navigator.clipboard.writeText(urls[index].url)
+                    .then(() => {
+                        showNotification('URL copied to clipboard!');
+                    })
+                    .catch(err => {
+                        showNotification('Failed to copy URL', true);
+                    });
+            }
+
+
+        }
+
+        function deleteUrl(id) {
+            const index = urls.findIndex(urlObj => urlObj.id === id);
+            if (index !== -1) {
+                if (confirm('Are you sure you want to delete this URL?')) {
+                    urls.splice(index, 1);
+                    localStorage.setItem('urls', JSON.stringify(urls));
+                    renderUrls(searchInput.value.trim());
+                }
+            }
+        }
+
+        let activeSuggestionIndex = -1;
+
+        function debounce(func, delay) {
+            let debounceTimer;
+            return function () {
+                const context = this;
+                const args = arguments;
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => func.apply(context, args), delay);
+            };
+        }
+
+        function updateSuggestions() {
+            const searchText = searchInput.value.trim().toLowerCase();
+            suggestionsDiv.innerHTML = '';
+            if (searchText) {
+                const filteredSuggestions = urls.filter(urlObj =>
+                    urlObj.url.toLowerCase().includes(searchText) ||
+                    urlObj.label.toLowerCase().includes(searchText)
+                ).map(urlObj => urlObj.label ? `${urlObj.label}: ${urlObj.url}` : urlObj.url);
+
+                if (filteredSuggestions.length > 0) {
+                    filteredSuggestions.forEach(suggestion => {
+                        const suggestionDiv = document.createElement('div');
+                        suggestionDiv.textContent = suggestion;
+                        suggestionDiv.onclick = () => {
+                            searchInput.value = suggestion;
+                            suggestionsDiv.style.display = 'none'; // Hide suggestions when an item is clicked
+                            renderUrls(searchInput.value.trim());
+                        };
+                        suggestionsDiv.appendChild(suggestionDiv);
+                    });
+                    suggestionsDiv.style.display = 'block';
+                } else {
+                    suggestionsDiv.style.display = 'none';
+                }
+            } else {
+                suggestionsDiv.style.display = 'none';
+            }
+        }
+
+        const hideSuggestions = debounce(() => {
+            suggestionsDiv.style.display = 'none';
+        }, 3000);
+        searchInput.addEventListener('input', () => {
+            updateSuggestions();
+            hideSuggestions();
+        });
+
+        function handleKeyDown(event) {
+            const suggestionItems = suggestionsDiv.children;
+            if (suggestionsDiv.style.display === 'block') {
+                switch (event.key) {
+                    case 'ArrowDown':
+                        event.preventDefault();
+                        activeSuggestionIndex = (activeSuggestionIndex + 1) % suggestionItems.length;
+                        highlightSuggestion(suggestionItems, activeSuggestionIndex);
+                        break;
+                    case 'ArrowUp':
+                        event.preventDefault();
+                        activeSuggestionIndex = (activeSuggestionIndex - 1 + suggestionItems.length) % suggestionItems.length;
+                        highlightSuggestion(suggestionItems, activeSuggestionIndex);
+                        break;
+                    case 'Enter':
+                        if (activeSuggestionIndex >= 0) {
+                            event.preventDefault();
+                            suggestionItems[activeSuggestionIndex].click();
+                        }
+                        break;
+                    case 'Escape':
+                        suggestionsDiv.style.display = 'none';
+                        break;
+                }
+            }
+        }
+
+        function highlightSuggestion(items, index) {
+            for (let i = 0; i < items.length; i++) {
+                items[i].classList.remove('active');
+            }
+            if (items[index]) {
+                items[index].classList.add('active');
+            }
+        }
+
+        searchInput.addEventListener('keydown', handleKeyDown);
+
+        function debounce(func, delay) {
+            let debounceTimer;
+            return function () {
+                const context = this;
+                const args = arguments;
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => func.apply(context, args), delay);
+            };
+        }
+
+        const debouncedUpdateSuggestions = debounce(updateSuggestions, 300);
+        searchInput.addEventListener('input', debouncedUpdateSuggestions);
+
+
+        function sortTable(column) {
+            if (sortColumn === column) {
+                // Toggle sort order
+                sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortOrder = 'asc';
+            }
+            // Update sort icons
+            tableHeaders.forEach(th => {
+                const icon = th.querySelector('i');
+                if (th.getAttribute('data-column') === column) {
+                    icon.className = sortOrder === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+                } else {
+                    icon.className = 'fas fa-sort';
+                }
+            });
+            renderUrls(searchInput.value.trim());
+        }
+
+        tableHeaders.forEach(th => {
+            th.addEventListener('click', () => {
+                const column = th.getAttribute('data-column');
+                sortTable(column);
+            });
+        });
+
+        searchInput.addEventListener('input', () => {
+            renderUrls(searchInput.value.trim());
+            updateSuggestions();
+        });
+
+        clearSearchButton.addEventListener('click', () => {
+            searchInput.value = '';
+            renderUrls();
+            suggestionsDiv.style.display = 'none';
+        });
+
+        addUrlButton.addEventListener('click', addUrl);
+        renderUrls();
+        document.getElementById('exportJson').addEventListener('click', function () {
+            let urls = JSON.parse(localStorage.getItem('urls')) || [];
+            if (urls.length === 0) {
+                alert("No bookmarks to export!");
+                return;
+            }
+
+            // Convert bookmarks to JSON string
+            const jsonData = JSON.stringify(urls, null, 2);
+
+            // Create a Blob with the JSON data
+            const blob = new Blob([jsonData], {type: "application/json"});
+
+            // Create an invisible anchor element to trigger the download
+            const a = document.createElement("a");
+
+            // Set the download attribute to specify the default filename
+            a.href = URL.createObjectURL(blob);
+            a.download = "bookmarks.json";  // Default file name
+
+            // Trigger the file save dialog by simulating a click on the anchor tag
+            document.body.appendChild(a);
+            a.click();
+
+            // Clean up by revoking the object URL and removing the anchor element from the DOM
+            setTimeout(() => {
+                URL.revokeObjectURL(a.href);
+                document.body.removeChild(a);
+            }, 100);
+        });
+
+        document.getElementById('importJson').addEventListener('click', function () {
+            // Create an invisible file input element to open the file dialog
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+
+            fileInput.addEventListener('change', function (event) {
+
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        try {
+                            // Parse the JSON file
+                            const importedUrls = JSON.parse(e.target.result);
+
+                            if (Array.isArray(importedUrls)) {
+                                // Validate each URL in the imported data
+                                const validUrls = importedUrls.filter(urlObj =>
+                                    urlObj.id && urlObj.url && urlObj.label && isValidUrl(urlObj.url)
+                                );
+                                if (validUrls.length > 0) {
+                                    // Merge imported URLs with existing ones (avoid duplicates)
+                                    const existingUrls = JSON.parse(localStorage.getItem('urls')) || [];
+                                    const newUrls = validUrls.filter(newUrl =>
+                                        !existingUrls.some(existingUrl => existingUrl.url === newUrl.url)
+                                    );
+
+                                    if (newUrls.length > 0) {
+                                        // Update localStorage with merged data
+                                        const updatedUrls = [...existingUrls, ...newUrls];
+                                        localStorage.setItem('urls', JSON.stringify(updatedUrls));
+
+                                        // Re-render the table
+                                        urls = updatedUrls; // Update the in-memory URLs
+                                        renderUrls();
+                                        showNotification(`Successfully imported ${newUrls.length} bookmarks!`);
+                                    } else {
+                                        showNotification('No new bookmarks to import.', true);
+                                    }
+                                } else {
+                                    showNotification('No valid bookmarks found in the file.', true);
+                                }
+                            } else {
+                                showNotification('Invalid JSON format.', true);
+                            }
+                        } catch (error) {
+                            showNotification('Error parsing JSON file.', true);
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            });
+
+            // Simulate a click on the file input to open the file dialog
+            fileInput.click();
+        });
+
+        document.getElementById('importJsonOverwrite').addEventListener('click', function () {
+            // Create an invisible file input element to open the file dialog
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+
+            fileInput.addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        try {
+                            // Parse the JSON file
+                            const importedUrls = JSON.parse(e.target.result);
+                            if (Array.isArray(importedUrls)) {
+                                // Validate each URL in the imported data
+                                const validUrls = importedUrls.filter(urlObj =>
+                                    urlObj.id && urlObj.url && urlObj.label && isValidUrl(urlObj.url)
+                                );
+
+                                if (validUrls.length > 0) {
+                                    // Merge imported URLs with existing ones (avoid duplicates)
+
+                                    if (validUrls.length > 0) {
+                                        // Update localStorage with merged data
+                                        const updatedUrls = [...validUrls];
+                                        localStorage.setItem('urls', JSON.stringify(updatedUrls));
+                                        urls = updatedUrls; // Update the in-memory URLs
+                                        renderUrls();
+                                        showNotification(`Successfully imported ${validUrls.length} bookmarks!`);
+                                    } else {
+                                        showNotification('No new bookmarks to import.', true);
+                                    }
+                                } else {
+                                    showNotification('No valid bookmarks found in the file.', true);
+                                }
+                            } else {
+                                showNotification('Invalid JSON format.', true);
+                            }
+                        } catch (error) {
+                            showNotification('Error parsing JSON file.', true);
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            });
+
+            // Simulate a click on the file input to open the file dialog
+            fileInput.click();
+        });
+
+
+
+    });
+
+
+</script>
+</body>
+</html>
