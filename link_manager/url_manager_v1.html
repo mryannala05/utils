@@ -457,6 +457,13 @@
 
         }
     );
+    const style = document.createElement('style');
+    style.textContent = `
+    .suggestions {
+        scroll-behavior: smooth;
+    }
+`;
+    document.head.appendChild(style);
 
     document.querySelectorAll('th').forEach(th => {
         const resizeHandle = document.createElement('div');
@@ -503,15 +510,17 @@
             return '_' + Math.random().toString(36).substr(2, 9);
         }
 
-        function renderUrls(filter = '') {
+        function renderUrls(filter = '', filteredUrlsParam = null) {
             urlList.innerHTML = '';
-            let filteredUrls = urls.filter(urlObj =>
+
+            // Use parameter name that doesn't conflict
+            let urlsToRender = filteredUrlsParam || urls.filter(urlObj =>
                 urlObj.url.toLowerCase().includes(filter.toLowerCase()) ||
                 urlObj.label.toLowerCase().includes(filter.toLowerCase())
             );
 
-            // Sorting
-            filteredUrls.sort((a, b) => {
+            // Sorting logic
+            urlsToRender.sort((a, b) => {
                 const valA = a[sortColumn].toLowerCase();
                 const valB = b[sortColumn].toLowerCase();
                 if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
@@ -519,7 +528,7 @@
                 return 0;
             });
 
-            if (filteredUrls.length === 0) {
+            if (urlsToRender.length === 0) {
                 const row = document.createElement('tr');
                 const cell = document.createElement('td');
                 cell.colSpan = 3;
@@ -528,7 +537,7 @@
                 row.appendChild(cell);
                 urlList.appendChild(row);
             } else {
-                filteredUrls.forEach((urlObj) => {
+                urlsToRender.forEach((urlObj) => {
                     const row = document.createElement('tr');
 
                     const labelCell = document.createElement('td');
@@ -707,20 +716,34 @@
         function updateSuggestions() {
             const searchText = searchInput.value.trim().toLowerCase();
             suggestionsDiv.innerHTML = '';
+
             if (searchText) {
                 const filteredSuggestions = urls.filter(urlObj =>
                     urlObj.url.toLowerCase().includes(searchText) ||
                     urlObj.label.toLowerCase().includes(searchText)
-                ).map(urlObj => urlObj.label ? `${urlObj.label}: ${urlObj.url}` : urlObj.url);
+                );
 
                 if (filteredSuggestions.length > 0) {
-                    filteredSuggestions.forEach(suggestion => {
+                    filteredSuggestions.forEach(urlObj => {
                         const suggestionDiv = document.createElement('div');
-                        suggestionDiv.textContent = suggestion;
+                        // Store both ID and display text in dataset
+                        suggestionDiv.dataset.id = urlObj.id;
+                        suggestionDiv.dataset.display = urlObj.label ?
+                            `${urlObj.label}: ${urlObj.url}` : urlObj.url;
+
+                        // Show friendly text
+                        suggestionDiv.textContent = urlObj.label ?
+                            `${urlObj.label}: ${urlObj.url}` : urlObj.url;
+
                         suggestionDiv.onclick = () => {
-                            searchInput.value = suggestion;
-                            suggestionsDiv.style.display = 'none'; // Hide suggestions when an item is clicked
-                            renderUrls(searchInput.value.trim());
+                            // Update search field with full display text
+                            searchInput.value = suggestionDiv.dataset.display;
+
+                            // Filter to show EXACT match
+                            const exactMatch = urls.filter(u => u.id === urlObj.id);
+                            renderUrls('', exactMatch);
+
+                            suggestionsDiv.style.display = 'none';
                         };
                         suggestionsDiv.appendChild(suggestionDiv);
                     });
@@ -746,21 +769,30 @@
             if (suggestionsDiv.style.display === 'block') {
                 switch (event.key) {
                     case 'ArrowDown':
-                        event.preventDefault();
-                        activeSuggestionIndex = (activeSuggestionIndex + 1) % suggestionItems.length;
-                        highlightSuggestion(suggestionItems, activeSuggestionIndex);
-                        break;
                     case 'ArrowUp':
                         event.preventDefault();
-                        activeSuggestionIndex = (activeSuggestionIndex - 1 + suggestionItems.length) % suggestionItems.length;
+                        activeSuggestionIndex =
+                            (event.key === 'ArrowDown')
+                                ? (activeSuggestionIndex + 1) % suggestionItems.length
+                                : (activeSuggestionIndex - 1 + suggestionItems.length) % suggestionItems.length;
+
                         highlightSuggestion(suggestionItems, activeSuggestionIndex);
+
+                        // Set 20-second timeout for arrow key interactions
+                        hideSuggestions(20000);
+
+                        // Update suggestions with longer debounce
+                        debouncedUpdateSuggestions = debounce(updateSuggestions, 20000);
+                        debouncedUpdateSuggestions();
                         break;
+
                     case 'Enter':
                         if (activeSuggestionIndex >= 0) {
                             event.preventDefault();
                             suggestionItems[activeSuggestionIndex].click();
                         }
                         break;
+
                     case 'Escape':
                         suggestionsDiv.style.display = 'none';
                         break;
@@ -773,9 +805,18 @@
                 items[i].classList.remove('active');
             }
             if (items[index]) {
-                items[index].classList.add('active');
+                const activeItem = items[index];
+                activeItem.classList.add('active');
+
+                // Scroll into view with smooth behavior
+                activeItem.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',    // Align to nearest edge
+                    inline: 'start'     // Align to left edge
+                });
             }
         }
+
 
         searchInput.addEventListener('keydown', handleKeyDown);
 
@@ -789,8 +830,12 @@
             };
         }
 
-        const debouncedUpdateSuggestions = debounce(updateSuggestions, 300);
-        searchInput.addEventListener('input', debouncedUpdateSuggestions);
+        let debouncedUpdateSuggestions = debounce(updateSuggestions, 300);
+        let hideTimeoutId = null;
+        searchInput.addEventListener('input', () => {
+            updateSuggestions();
+            hideSuggestions(); // Default 3-second timeout
+        });
 
 
         function sortTable(column) {
@@ -840,6 +885,8 @@
                 return;
             }
 
+            urls = urls.filter(url => !(url.label && url.label.startsWith('pr:')));
+
             // Convert bookmarks to JSON string
             const jsonData = JSON.stringify(urls, null, 2);
 
@@ -861,7 +908,14 @@
             setTimeout(() => {
                 URL.revokeObjectURL(a.href);
                 document.body.removeChild(a);
+
+                setTimeout(() => {
+                    showNotification('Exports bookmarks skipping labels that starts with pr: ..');
+                }, 1000);
+
+
             }, 100);
+
         });
 
         document.getElementById('importJson').addEventListener('click', function () {
